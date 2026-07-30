@@ -9,7 +9,7 @@ load_dotenv()
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 LOGO_PATH = r"C:\Users\Udarsh\.gemini\antigravity\brain\32e4c94e-9dbf-4ddc-8742-a7fd61464518\setu_logo_1785409259763.jpg"
 
-st.set_page_config(page_title="Setu Advisory", page_icon="🌾", layout="centered")
+st.set_page_config(page_title="Setu", page_icon="🌾", layout="centered")
 
 # --- Custom Black & Purple Aesthetic CSS ---
 def get_base64_image(image_path):
