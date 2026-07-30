@@ -29,7 +29,7 @@ actual field use.
 
 A farmer can:
 - **Show** a leaf, pest, or soil sample to the camera
-- **Ask**, by voice, in Tamil or code-switched Tamil-English
+- **Ask**, by voice, in English, Tamil, Telugu, or Hindi (including code-switched combinations)
 - **Receive** an answer grounded in a locally stored knowledge base of
   Tamil Nadu Agricultural University (TNAU) advisories and government
   scheme documents, with an offline cost/subsidy calculator invoked via
@@ -64,7 +64,7 @@ transcription accuracy — cutting WER on their multilingual dev set from
 We do **not** train our own MoE projector in a one-day sprint — that
 required six A40 GPUs and a 1,500-hour dataset in the paper. Instead, this
 finding directly informs a documented design decision in our pipeline: we
-route Tamil-English code-switched audio through **language-hinted prompting
+routing code-switched audio through **language-hinted prompting
 and a lightweight rule-based dialect/script detector** before it reaches
 Gemma 4's native audio pathway, approximating the *intent* of expert
 routing at a scale feasible for a hackathon. We cite this explicitly in our
@@ -100,7 +100,7 @@ users face — not an arbitrary choice.
 |---|---|
 | Works with no internet | Open weights, runs fully local via Ollama/llama.cpp |
 | Understands a leaf photo | Native vision input, all sizes |
-| Understands spoken Tamil | Native audio input on E2B / E4B / 12B Unified |
+| Understands spoken English, Tamil, Telugu, and Hindi | Native audio input on E2B / E4B / 12B Unified |
 | Fits on a laptop GPU | E4B and 12B Unified quantize to ~4–8GB VRAM |
 | Can call a subsidy calculator | Native function-calling support |
 | Multilingual (140+ languages incl. Tamil) | Built into training |
@@ -110,6 +110,40 @@ variant with native audio *and* vision together, matching our core
 multimodal pitch.
 **Fallback model:** Gemma 4 E4B — lighter and faster, used if the 12B is
 unstable during the live demo.
+
+### `app/gemma_client.py` — the mode switch
+
+```python
+import os
+import requests
+
+MODE = os.environ.get("GEMMA_MODE", "local")
+
+def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):
+    # ... (audio/image processing logic) ...
+    
+    payload = {
+        "stream": False,
+        "messages": messages if messages else [{"role": "user", "content": prompt}]
+    }
+    if tools:
+        payload["tools"] = tools
+
+    if MODE == "local":
+        # talk to local Ollama instance via /api/chat
+        payload["model"] = os.environ.get("GEMMA_MODEL", "gemma4:12b")
+        resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
+    else:
+        # talk to hosted endpoint (Render deployment path)
+        payload["model"] = "gemma-4"
+        resp = requests.post(
+            os.environ["GEMMA_API_BASE"],
+            headers={"Authorization": f"Bearer {os.environ['GEMMA_API_KEY']}"},
+            json=payload,
+            timeout=60
+        )
+    return resp.json().get("message", {})
+```
 
 ## 5. Two-Tier Demo Strategy (see README for technical detail)
 

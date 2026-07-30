@@ -1,6 +1,6 @@
 def calculate_subsidy(farmer_type: str, equipment_cost: float, equipment_type: str) -> str:
     """
-    Mock function calling tool for calculating subsidy based on TN Govt schemes.
+    Function calling tool for calculating subsidy based on TN Govt schemes.
     """
     farmer_type = farmer_type.lower()
     equipment_type = equipment_type.lower()
