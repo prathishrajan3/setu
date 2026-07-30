@@ -10,8 +10,11 @@ def get_whisper():
     global _whisper_model
     if _whisper_model is None:
         from faster_whisper import WhisperModel
-        # Using tiny model for hackathon speed constraints, running on CPU
-        _whisper_model = WhisperModel("tiny", device="cpu", compute_type="int8")
+        # Whisper Model Choice Tradeoff for Indic Languages:
+        # - "tiny": Too inaccurate for noisy/accented/code-switched Tamil, Telugu, and Hindi speech.
+        # - "small": Excellent accuracy, but too slow for offline laptop CPU inference (~1.5-2x latency of base).
+        # - "base": The optimal middle ground for the hackathon demo, offering acceptable accuracy and low latency on CPU.
+        _whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
     return _whisper_model
 
 def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):

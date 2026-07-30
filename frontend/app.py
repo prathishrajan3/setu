@@ -7,18 +7,28 @@ BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 st.set_page_config(page_title="Setu (சேது) Advisory", page_icon="🌾")
 
 st.title("Setu (சேது) — Offline Farm Advisory")
-st.markdown("Point a camera at a leaf. Ask a question in Tamil. Get an answer.")
+st.markdown("Point a camera at a leaf. Ask a question in English, Tamil, Telugu, or Hindi. Get an answer.")
 
 # Interface
 tab1, tab2 = st.tabs(["Text Query", "Multimodal Input"])
 
+st.markdown("### Settings")
+language_override = st.selectbox(
+    "Language (Optional Override):", 
+    ["Auto-detect", "English", "Tamil", "Telugu", "Hindi"],
+    help="Force a specific language if auto-detection fails."
+)
+
 with tab1:
     st.header("Ask a Question")
-    user_query = st.text_input("Enter your query (Tamil/English/Code-switched):")
+    user_query = st.text_input("Enter your query (English, Tamil, Telugu, Hindi, or Code-switched):")
     if st.button("Ask"):
         if user_query:
             try:
-                response = requests.post(f"{BACKEND_URL}/chat", data={"text": user_query})
+                response = requests.post(
+                    f"{BACKEND_URL}/chat", 
+                    data={"text": user_query, "language_override": language_override}
+                )
                 if response.status_code == 200:
                     st.success("Response:")
                     st.write(response.json().get("response", "No response returned."))
@@ -47,13 +57,14 @@ with tab2:
     if st.button("Process Input"):
         if audio_file or final_image:
             files = {}
+            data = {"language_override": language_override}
             if audio_file:
                 files["audio"] = (audio_file.name, audio_file.getvalue(), audio_file.type)
             if final_image:
                 files["image"] = (final_image.name, final_image.getvalue(), final_image.type)
                 
             try:
-                response = requests.post(f"{BACKEND_URL}/chat", files=files)
+                response = requests.post(f"{BACKEND_URL}/chat", data=data, files=files)
                 if response.status_code == 200:
                     st.success("Response:")
                     st.write(response.json().get("response", "No response returned."))

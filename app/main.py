@@ -8,6 +8,7 @@ import os
 import shutil
 import json
 import base64
+from typing import Optional
 
 app = FastAPI(title="Setu API")
 
@@ -84,10 +85,17 @@ def handle_tool_calls(message_dict, messages):
     return final_message.get("content", "")
 
 @app.post("/chat")
-async def chat(text: str = Form(None), audio: UploadFile = File(None), image: UploadFile = File(None)):
+async def chat(
+    text: str = Form(None), 
+    audio: UploadFile = File(None), 
+    image: UploadFile = File(None),
+    language_override: Optional[str] = Form(None)
+):
     temp_audio_path = None
     temp_image_path = None
     transcribed_text = ""
+    audio_languages = []
+    WHISPER_LANG_MAP = {"ta": "tamil", "te": "telugu", "hi": "hindi", "en": "english"}
     
     try:
         if audio:
@@ -100,8 +108,11 @@ async def chat(text: str = Form(None), audio: UploadFile = File(None), image: Up
             model = get_whisper()
             for chunk_path in chunk_paths:
                 try:
-                    segments, _ = model.transcribe(chunk_path)
+                    segments, info = model.transcribe(chunk_path)
                     transcribed_text += " ".join([seg.text for seg in segments]) + " "
+                    # Capture language with high confidence
+                    if info.language_probability > 0.5 and info.language in WHISPER_LANG_MAP:
+                        audio_languages.append(WHISPER_LANG_MAP[info.language])
                 except Exception as e:
                     print(f"Error transcribing chunk {chunk_path}: {e}")
                 finally:
@@ -121,9 +132,18 @@ async def chat(text: str = Form(None), audio: UploadFile = File(None), image: Up
             
         query_to_search = transcribed_text if transcribed_text else (text or "")
         
-        # 1. RAG Tamil Translation Optimization
-        dialect = route_dialect(query_to_search)
-        if dialect in ["tamil", "code-switched"] and query_to_search.strip():
+        # 1. Determine dialect
+        if language_override and language_override.lower() != "auto-detect":
+            dialect = language_override.lower()
+        elif audio_languages:
+            # Use most frequent language detected by Whisper
+            dialect = max(set(audio_languages), key=audio_languages.count)
+        else:
+            # Fallback to script-based detection on text
+            dialect = route_dialect(query_to_search)
+        
+        # 2. RAG Translation Optimization
+        if dialect not in ["english", "unrecognized"] and query_to_search.strip():
             translate_prompt = f"Translate the following agricultural query to English accurately. Return ONLY the English translation, no other text:\n\n{query_to_search}"
             translate_msg = query_gemma(prompt=translate_prompt)
             english_query = translate_msg.get("content", "").strip()
@@ -131,12 +151,16 @@ async def chat(text: str = Form(None), audio: UploadFile = File(None), image: Up
         else:
             search_term = query_to_search
             
+        # RAG NOTE: Translating queries to English acts as a normalization step since the RAG 
+        # knowledge base consists of English TNAU documents. If native-language advisory documents 
+        # (Tamil, Telugu, Hindi) were available, skipping this translation step and embedding the 
+        # native query directly would improve semantic matching and reduce translation bottlenecks.
         context = retrieve_context(search_term)
         
         augmented_prompt = f"Context:\n{context}\n\nUser Question:\n{text}\n\nAnswer the user based on the context." if context else text
-        routed_prompt = inject_routing_prompt(augmented_prompt)
+        routed_prompt = inject_routing_prompt(dialect, augmented_prompt)
         
-        # 2. Build original messages array for context preservation
+        # 3. Build original messages array for context preservation
         messages = [{"role": "user", "content": routed_prompt}]
         if temp_image_path and os.path.exists(temp_image_path):
             try:
@@ -145,10 +169,10 @@ async def chat(text: str = Form(None), audio: UploadFile = File(None), image: Up
             except Exception as e:
                 print(f"Image encode error: {e}")
         
-        # 3. Initial query
+        # 4. Initial query
         message = query_gemma(messages=messages, tools=TOOLS_LIST)
         
-        # 4. Handle tool calls loop with preserved context
+        # 5. Handle tool calls loop with preserved context
         final_response_text = handle_tool_calls(message, messages)
         
         return {"response": final_response_text}
