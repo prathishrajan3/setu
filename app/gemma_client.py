@@ -2,6 +2,7 @@ import os
 import requests
 import base64
 import json
+from openai import OpenAI
 
 MODE = os.environ.get("GEMMA_MODE", "local")
 
@@ -10,16 +11,11 @@ def get_whisper():
     global _whisper_model
     if _whisper_model is None:
         from faster_whisper import WhisperModel
-        # Whisper Model Choice Tradeoff for Indic Languages:
-        # - "tiny": Too inaccurate for noisy/accented/code-switched Tamil, Telugu, and Hindi speech.
-        # - "small": Excellent accuracy, but too slow for offline laptop CPU inference (~1.5-2x latency of base).
-        # - "base": The optimal middle ground for the hackathon demo, offering acceptable accuracy and low latency on CPU.
         _whisper_model = WhisperModel("base", device="cpu", compute_type="int8")
     return _whisper_model
 
 def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):
     if messages is None:
-        # 1. Handle Audio via local ASR fallback
         if audio_path:
             try:
                 model = get_whisper()
@@ -30,7 +26,6 @@ def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messa
                 print(f"ASR Error: {e}")
                 prompt = f"{prompt}\n\n[Transcribed Audio: Error transcribing file.]"
                 
-        # 2. Handle Image encoding
         images_list = []
         if image_path and os.path.exists(image_path):
             try:
@@ -39,59 +34,35 @@ def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messa
             except Exception as e:
                 print(f"Image encode error: {e}")
 
-        # Use the /api/chat interface which natively supports tools and multimodal messages
-        messages = [{"role": "user", "content": prompt}]
-        if images_list:
-            messages[0]["images"] = images_list
-        
-    payload = {
-        "stream": False,
-        "messages": messages
+        # The OpenAI API expects image_url for images
+        content = [{"type": "text", "text": prompt}]
+        for b64_img in images_list:
+            content.append({
+                "type": "image_url",
+                "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}
+            })
+            
+        messages = [{"role": "user", "content": content}]
+
+    client = OpenAI(
+        base_url="http://10.129.53.171:1234/v1",
+        api_key="lm-studio"
+    )
+
+    kwargs = {
+        "model": "gemma-4-12b-qat",
+        "messages": messages,
     }
     if tools:
-        payload["tools"] = tools
+        kwargs["tools"] = tools
 
-    if MODE == "local":
-        primary_model = os.environ.get("GEMMA_MODEL", "gemma4:12b")
-        fallback_model = "gemma4:e4b"
-        payload["model"] = primary_model
-        
-        try:
-            resp = requests.post(
-                "http://localhost:11434/api/chat",
-                json=payload,
-                timeout=120 # Local timeout (increased to 120s for model loading)
-            )
-            resp.raise_for_status()
-            return resp.json().get("message", {})
-        except requests.exceptions.RequestException as e:
-            print(f"Primary model {primary_model} failed, falling back to {fallback_model}. Error: {e}")
-            payload["model"] = fallback_model
-            try:
-                resp = requests.post(
-                    "http://localhost:11434/api/chat",
-                    json=payload,
-                    timeout=120
-                )
-                resp.raise_for_status()
-                return resp.json().get("message", {})
-            except requests.exceptions.RequestException as e2:
-                return {"role": "assistant", "content": f"Error connecting to local Ollama: {e2}"}
-    else:
-        api_base = os.environ.get("GEMMA_API_BASE", "")
-        api_key = os.environ.get("GEMMA_API_KEY", "")
-        payload["model"] = "gemma-4"
-        try:
-            resp = requests.post(
-                api_base,
-                headers={"Authorization": f"Bearer {api_key}"},
-                json=payload,
-                timeout=60 # Hosted timeout
-            )
-            resp.raise_for_status()
-            data = resp.json()
-            if "choices" in data and len(data["choices"]) > 0:
-                return data["choices"][0]["message"]
-            return {"role": "assistant", "content": data.get("response", str(data))}
-        except requests.exceptions.RequestException as e:
-            return {"role": "assistant", "content": f"Error connecting to hosted API: {e}"}
+    try:
+        response = client.chat.completions.create(**kwargs)
+        # Convert OpenAI response object to dict format expected by the app
+        msg = response.choices[0].message
+        result = {"role": msg.role, "content": msg.content or ""}
+        if msg.tool_calls:
+            result["tool_calls"] = [{"function": {"name": t.function.name, "arguments": t.function.arguments}} for t in msg.tool_calls]
+        return result
+    except Exception as e:
+        return {"role": "assistant", "content": f"Error connecting to LM Studio: {e}"}
