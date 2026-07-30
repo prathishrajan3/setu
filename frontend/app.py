@@ -39,6 +39,7 @@ with tab2:
     # Secondary inputs
     with st.expander("Or upload files instead"):
         image_file = st.file_uploader("Upload leaf/crop image", type=["jpg", "jpeg", "png"])
+        st.markdown("*Note: Please use `.wav` for optimal offline processing (enables smart chunking). Other formats bypass chunking.*")
         audio_file = st.file_uploader("Upload audio recording", type=["wav", "mp3", "m4a"])
     
     final_image = camera_image if camera_image else image_file
