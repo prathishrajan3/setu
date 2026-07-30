@@ -4,11 +4,11 @@
 **Track:** AI off the Grid
 **Team:** [Your Team Name]
 
----
+   
 
 ## 1. The Problem
 
-Small and marginal farmers across rural Tamil Nadu routinely make high-stakes
+Small and marginal farmers across rural India routinely make high stakes
 decisions — what disease is on this leaf, which pesticide to use, whether a
 government scheme covers the treatment — in fields that have **no reliable
 network connectivity**. Existing AI advisory tools assume a live API call to
@@ -16,81 +16,81 @@ the cloud. The moment signal drops, the tool is useless — precisely when and
 where the farmer needs it most.
 
 A second, less obvious problem compounds this: farmer speech in the field is
-**code-switched Tamil-English, accented, and recorded in noisy outdoor
-conditions** (wind, machinery, livestock). Off-the-shelf speech pipelines
-tuned on clean, monolingual benchmark audio degrade badly under these
-real-world conditions.
+**code switched (mixing Tamil, Telugu, or Hindi with English), accented, and
+recorded in noisy outdoor conditions** (wind, machinery, livestock).
+Off the shelf speech pipelines tuned on clean, monolingual benchmark audio
+degrade badly under these real world conditions.
 
 ## 2. The Solution
 
-Setu is an **on-device, fully offline** multimodal assistant that runs
+Setu is an **on device, fully offline** multimodal assistant that runs
 entirely on local hardware — no internet, no cloud API dependency during
 actual field use.
 
 A farmer can:
-- **Show** a leaf, pest, or soil sample to the camera
-- **Ask**, by voice, in English, Tamil, Telugu, or Hindi (including code-switched combinations)
-- **Receive** an answer grounded in a locally stored knowledge base of
+* **Show** a leaf, pest, or soil sample to the camera
+* **Ask**, by voice, in English, Tamil, Telugu, or Hindi (including code switched combinations)
+* **Receive** an answer grounded in a locally stored knowledge base of
   Tamil Nadu Agricultural University (TNAU) advisories and government
   scheme documents, with an offline cost/subsidy calculator invoked via
   function calling when relevant
 
 Everything — vision understanding, speech understanding, retrieval, and
-reasoning — happens on-device.
+reasoning — happens on device.
 
-## 3. Why This Is Not a Vibe-Coded Wrapper
+## 3. Why This Is Not a Vibe Coded Wrapper
 
-A one-day sprint doesn't allow for training our own models from scratch. But
-it does allow us to make **deliberate, literature-informed design choices**
+A one day sprint doesn't allow for training our own models from scratch. But
+it does allow us to make **deliberate, literature informed design choices**
 instead of defaulting to whatever an LLM suggests first. We grounded two
-specific architecture decisions in a recent peer-reviewed research paper
+specific architecture decisions in a recent peer reviewed research paper
 rather than guessing:
 
-> **Lin, G., Chen, Z., Fu, Y., Li, K., & Zhang, W-Q. (2026).**
-> *Enhancing Multilingual LLM-based ASR with Mixture of Experts and Dynamic
+> **Lin, G., Chen, Z., Fu, Y., Li, K., & Zhang, W Q. (2026).**
+> *Enhancing Multilingual LLM based ASR with Mixture of Experts and Dynamic
 > Downsampling.* Tsinghua University. arXiv:2606.10439v1 [cs.SD].
 
 This paper studies exactly our failure mode: multilingual, accented speech
-being fed into an LLM-based ASR pipeline (Whisper encoder + projector + LLM
+being fed into an LLM based ASR pipeline (Whisper encoder + projector + LLM
 decoder). Its two contributions directly shaped our design:
 
-### 3a. MoE-Enhanced Projector → informs our multilingual robustness plan
-The paper shows that routing acoustic features through **language-specific
-expert sub-networks** (Eq. 1 in the paper: `y = Σ gₖ(x)·Eₖ(x)`), rather than
-a single shared linear projector, meaningfully improves cross-lingual
+### 3a. MoE Enhanced Projector → informs our multilingual robustness plan
+The paper shows that routing acoustic features through **language specific
+expert sub networks** (Eq. 1 in the paper: `y = Σ gₖ(x)·Eₖ(x)`), rather than
+a single shared linear projector, meaningfully improves cross lingual
 transcription accuracy — cutting WER on their multilingual dev set from
 23.26% (baseline) to 16.10% with an MoE projector alone.
 
-We do **not** train our own MoE projector in a one-day sprint — that
-required six A40 GPUs and a 1,500-hour dataset in the paper. Instead, this
+We do **not** train our own MoE projector in a one day sprint — that
+required six A40 GPUs and a 1,500 hour dataset in the paper. Instead, this
 finding directly informs a documented design decision in our pipeline: we
-routing code-switched audio through **language-hinted prompting
-and a lightweight rule-based dialect/script detector** before it reaches
+route code switched audio through **language hinted prompting
+and a lightweight rule based dialect/script detector** before it reaches
 Gemma 4's native audio pathway, approximating the *intent* of expert
 routing at a scale feasible for a hackathon. We cite this explicitly in our
-writeup as the literature basis for that decision, and flag full MoE-style
+writeup as the literature basis for that decision, and flag full MoE style
 routing as a concrete "future work" item — matching what the paper itself
 proposes as the direction worth pursuing.
 
-### 3b. CIF-Based Dynamic Downsampling → informs our audio chunking strategy
-The paper shows that fixed-rate downsampling (compressing every 4 audio
+### 3b. CIF Based Dynamic Downsampling → informs our audio chunking strategy
+The paper shows that fixed rate downsampling (compressing every 4 audio
 frames into 1 token, regardless of speech rate) hurts robustness when
 speech rate varies — which is exactly the case with farmers speaking under
 field stress, at inconsistent pace, sometimes over background noise. Their
-Continuous Integrate-and-Fire (CIF) approach instead **adapts the
+Continuous Integrate and Fire (CIF) approach instead **adapts the
 compression rate to the actual acoustic content**, improving WER on
-out-of-domain multilingual test sets (FLEURS: 13.05% → 10.46%; CommonVoice:
+out of domain multilingual test sets (FLEURS: 13.05% → 10.46%; CommonVoice:
 19.57% → 13.87%, per Table 1 of the paper).
 
-We apply the *principle* — variable-length, content-aware audio
-segmentation instead of fixed-length windows — when we chunk field
+We apply the *principle* — variable length, content aware audio
+segmentation instead of fixed length windows — when we chunk field
 recordings before passing them to Gemma 4's audio input, rather than naively
-slicing audio into fixed 5-second blocks. This is a heuristic adaptation of
+slicing audio into fixed 5 second blocks. This is a heuristic adaptation of
 CIF's core idea, not a reimplementation of the trained CIF predictor, and we
 state that distinction plainly in the writeup.
 
 **Why this matters for judging:** our Kaggle writeup will show, with
-citation, that our speech-handling decisions trace back to a specific,
+citation, that our speech handling decisions trace back to a specific,
 recent (June 2026) research finding about exactly the failure mode our
 users face — not an arbitrary choice.
 
@@ -102,55 +102,51 @@ users face — not an arbitrary choice.
 | Understands a leaf photo | Native vision input, all sizes |
 | Understands spoken English, Tamil, Telugu, and Hindi | Native audio input on E2B / E4B / 12B Unified |
 | Fits on a laptop GPU | E4B and 12B Unified quantize to ~4–8GB VRAM |
-| Can call a subsidy calculator | Native function-calling support |
+| Can call a subsidy calculator | Native function calling support |
 | Multilingual (140+ languages incl. Tamil) | Built into training |
 
-**Primary model:** Gemma 4 12B Unified, 4-bit quantized — the only mid-size
-variant with native audio *and* vision together, matching our core
+**Primary model:** Gemma 4 12B (`gemma4:12b` via Ollama), 4 bit quantized —
+the mid size variant with native vision support, matching our core
 multimodal pitch.
 **Fallback model:** Gemma 4 E4B — lighter and faster, used if the 12B is
 unstable during the live demo.
 
 ### `app/gemma_client.py` — the mode switch
 
+The client abstracts local vs. hosted inference behind a single function.
+Locally, it talks to Ollama's `/api/chat` endpoint with a primary → fallback
+model cascade (`gemma4:12b` → `gemma4:e4b`). For hosted deployment, it calls
+an OpenAI compatible API. Audio is transcribed locally via `faster whisper`
+before reaching Gemma; images are base64 encoded into the messages array.
+
 ```python
-import os
-import requests
+# Simplified from app/gemma_client.py — see the actual file for full error handling
 
 MODE = os.environ.get("GEMMA_MODE", "local")
 
 def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):
-    # ... (audio/image processing logic) ...
-    
-    payload = {
-        "stream": False,
-        "messages": messages if messages else [{"role": "user", "content": prompt}]
-    }
-    if tools:
-        payload["tools"] = tools
+    # Audio: transcribe locally via faster whisper, append to prompt
+    # Image: base64 encode and attach to messages["images"]
+    payload = {"stream": False, "messages": messages, ...}
 
     if MODE == "local":
-        # talk to local Ollama instance via /api/chat
         payload["model"] = os.environ.get("GEMMA_MODEL", "gemma4:12b")
-        resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
+        try:
+            resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
+        except:
+            payload["model"] = "gemma4:e4b"  # fallback
+            resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
     else:
-        # talk to hosted endpoint (Render deployment path)
-        payload["model"] = "gemma-4"
-        resp = requests.post(
-            os.environ["GEMMA_API_BASE"],
-            headers={"Authorization": f"Bearer {os.environ['GEMMA_API_KEY']}"},
-            json=payload,
-            timeout=60
-        )
+        resp = requests.post(os.environ["GEMMA_API_BASE"], ...)
     return resp.json().get("message", {})
 ```
 
-## 5. Two-Tier Demo Strategy (see README for technical detail)
+## 5. Two Tier Demo Strategy (see README for technical detail)
 
-1. **On-site offline demo** (the one judges actually watch): runs 100% on a
+1. **On site offline demo** (the one judges actually watch): runs 100% on a
    laptop with zero network connection, proving the "AI off the Grid" claim
    for real, not just in the writeup.
-2. **Public deployed demo** (Render, free tier): a lighter, always-on
+2. **Public deployed demo** (Render, free tier): a lighter, always on
    version judges can try remotely before/after the event, since a personal
    laptop can't stay reachable after the hackathon ends. This tier
    necessarily calls a hosted Gemma endpoint rather than running the model
@@ -159,20 +155,20 @@ def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messa
 
 ## 6. Judging Rubric Alignment
 
-- **Gemma Integration (30%):** native multimodal (vision + audio) input,
-  function calling, RAG — all load-bearing, not decorative.
-- **Innovation & Impact (30%):** concrete underserved-user problem, backed
-  by a cited research paper for the hardest technical sub-problem
-  (multilingual field-audio robustness).
-- **Functionality (20%):** the offline demo mode cannot fail on venue wifi,
-  unlike cloud-dependent competitors.
-- **Presentation (20%):** clear problem → literature grounding → solution
+* **Gemma Integration (30%):** native multimodal (vision + audio) input,
+  function calling, RAG — all load bearing, not decorative.
+* **Innovation & Impact (30%):** concrete underserved user problem, backed
+  by a cited research paper for the hardest technical sub problem
+  (multilingual field audio robustness).
+* **Functionality (20%):** the offline demo mode cannot fail on venue wifi,
+  unlike cloud dependent competitors.
+* **Presentation (20%):** clear problem → literature grounding → solution
   → live proof narrative.
 
 ## 7. Roadmap Beyond the Hackathon
 
-- Replace the heuristic dialect router with an actual trained MoE projector
+* Replace the heuristic dialect router with an actual trained MoE projector
   (per the cited paper) once compute allows.
-- Replace fixed-window audio chunking with a trained CIF predictor.
-- Expand the local knowledge base beyond the sample TNAU/scheme documents
+* Replace the heuristic RMS based audio chunker with a trained CIF predictor.
+* Expand the local knowledge base beyond the sample TNAU/scheme documents
   used for the demo.

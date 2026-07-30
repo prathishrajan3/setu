@@ -2,19 +2,38 @@
 
 Offline multimodal farm advisory assistant, powered by Gemma 4.
 
-## Live Demo
-[Live Demo](https://your-render-url.onrender.com)
-*Note: This is hosted on Render's free tier. The service spins down after 15 minutes of inactivity and may take 30–50 seconds to wake up on the first request.*
+Built for the Gemma 4 Hackathon Sprint (GDG VIT Chennai) — Track: AI off the Grid.
 
-## About
-Setu was built for the Gemma 4 Hackathon Sprint (GDG VIT Chennai) under the "AI off the Grid" track. It is designed for small and marginal farmers across rural Tamil Nadu who routinely make high-stakes agricultural decisions in fields with zero network connectivity. The project provides an on-device, multimodal assistant that understands code-switched Indic languages and operates fully offline, ensuring farmers have access to critical advisory information exactly when and where they need it most.
+## The Problem
+
+Small and marginal farmers across rural India make high stakes decisions every day — identifying a crop disease, choosing the right pesticide, figuring out if a government subsidy covers the treatment. They make these decisions in fields that have no reliable internet connectivity. Every existing AI advisory tool assumes a live cloud API call. The moment signal drops, the tool is useless, precisely when and where the farmer needs it most.
+
+A second problem compounds this: farmer speech in the field is code switched (mixing Tamil, Telugu, or Hindi with English), heavily accented, and recorded in noisy outdoor conditions. Standard speech pipelines trained on clean, monolingual audio degrade badly under these real world conditions.
+
+## What Setu Does
+
+Setu is a fully offline, on device multimodal assistant that runs entirely on local hardware with zero internet dependency during actual use. A farmer can:
+
+* **Show** a photo of a diseased leaf, pest, or soil sample through the camera.
+* **Ask** a question by voice or text in English, Tamil, Telugu, or Hindi, including code switched combinations.
+* **Receive** an answer grounded in locally stored Tamil Nadu Agricultural University (TNAU) advisories and government scheme documents, with a built in subsidy calculator triggered automatically when relevant.
+
+Everything — vision understanding, speech transcription, language detection, document retrieval, and reasoning — happens on device.
+
+## How It Works
+
+1. **Input capture:** The Streamlit frontend accepts text, camera photos, or audio recordings.
+2. **Audio processing:** Audio is split at natural silence boundaries using a CIF inspired RMS chunker (not fixed length windows), then transcribed locally via `faster whisper`. The detected language code from Whisper is used to route the query.
+3. **Language detection:** For text inputs, a Unicode script range detector identifies Tamil, Telugu, Hindi, English, or code switched combinations. Language specific system instructions are injected into the prompt.
+4. **RAG retrieval:** Non English queries are translated to English via Gemma 4 and matched against a local ChromaDB vector store loaded with TNAU advisory documents.
+5. **Response generation:** The full context (retrieved documents + user query + any uploaded image) is passed to Gemma 4 12B running locally via Ollama. If the model determines a subsidy calculation is needed, it triggers the built in tool via function calling.
 
 ## Features
-- Ask agricultural questions using text or voice in English, Tamil, Telugu, or Hindi.
-- Upload photos of crops or pests for offline visual analysis.
-- Calculate Tamil Nadu government subsidies for farm equipment automatically.
-- Get answers grounded in local TNAU advisories and government scheme documents.
-- Run the entire multimodal pipeline completely offline without internet connectivity.
+* Ask agricultural questions using text or voice in English, Tamil, Telugu, or Hindi.
+* Upload photos of crops or pests for offline visual analysis.
+* Calculate Tamil Nadu government subsidies for farm equipment automatically.
+* Get answers grounded in local TNAU advisories and government scheme documents.
+* Run the entire multimodal pipeline completely offline without internet connectivity.
 
 ## Tech Stack
 
@@ -24,10 +43,7 @@ Setu was built for the Gemma 4 Hackathon Sprint (GDG VIT Chennai) under the "AI 
 | Backend | FastAPI (Python) |
 | Local LLM | Gemma 4 12b (via Ollama) |
 | Vector Store | ChromaDB |
-| Speech Recognition | faster-whisper |
-
-## Architecture
-The Streamlit frontend captures text, camera photos, or microphone audio. The FastAPI backend processes the inputs: audio is sliced using a silence-aware chunker and transcribed via `faster-whisper`. The backend detects the spoken or written language (Tamil, Telugu, Hindi, English, or code-switched variants) and translates non-English queries to English. It then retrieves relevant context from a local ChromaDB instance loaded with TNAU documents. Finally, it constructs a prompt with language-specific routing instructions and passes it (along with any images) to the Gemma 4 model to either generate a natural language response or trigger a local subsidy calculation tool.
+| Speech Recognition | faster whisper |
 
 ## Running Locally
 
@@ -39,7 +55,7 @@ ollama pull gemma4:e4b
 
 2. Clone the repository and navigate into it:
 ```bash
-git clone <your-repo-url>
+git clone <your repo url>
 cd setu
 ```
 
@@ -71,25 +87,30 @@ streamlit run frontend/app.py
 ```text
 setu/
 ├── app/
-│   ├── audio_chunker.py     # Content-aware audio segmentation (RMS silence detection)
+│   ├── audio_chunker.py     # Content aware audio segmentation (RMS silence detection)
 │   ├── gemma_client.py      # LLM API abstraction (local Ollama / hosted API)
 │   ├── main.py              # FastAPI application and core processing loop
 │   ├── rag.py               # ChromaDB initialization and context retrieval
 │   ├── router.py            # Script and language heuristic router
-│   └── tools.py             # Function-calling definitions (subsidy calculator)
+│   └── tools.py             # Function calling definitions (subsidy calculator)
 ├── data/
 │   └── advisories/          # TNAU advisory and government scheme text files
 ├── frontend/
 │   └── app.py               # Streamlit user interface
 ├── .env.example             # Environment variable templates
-├── PRODUCT.md               # Detailed hackathon problem statement and research grounding
-├── render.yaml              # Render deployment configuration
+├── PRODUCT.md               # Detailed problem statement and research grounding
+├── render.yaml              # Deployment configuration
 └── requirements.txt         # Python dependencies
 ```
 
 ## Key Decisions
-- **MoE-inspired language routing:** Instead of relying entirely on raw LLM prompting for code-switched Indic speech, we implemented a heuristic router that forces language-specific system instructions, greatly improving response reliability for Tamil, Telugu, and Hindi inputs.
-- **Content-aware audio chunking:** Replaced standard fixed-window audio chunking with a Continuous Integrate-and-Fire (CIF) inspired RMS silence detector. This handles the highly variable speech rates of field recordings much more robustly.
-- **Pure Python processing:** Removed the heavy `ffmpeg` dependency for audio chunking by leveraging the native `wave` module, ensuring the codebase deploys smoothly to Render's free tier without requiring a custom Dockerfile.
-- **Lightweight embeddings:** Swapped heavy PyTorch-based embedding models (`sentence-transformers`) for ChromaDB's default ONNX embeddings to fit the vector store into Render's strict 512MB RAM limit.
-- **Two-tier deployment:** Maintained a strict offline fallback loop using a local Ollama instance for the live demo, while implementing a dynamic API switch to call a hosted Gemma endpoint for public cloud deployment.
+* **MoE inspired language routing:** Instead of relying entirely on raw LLM prompting for code switched Indic speech, we implemented a heuristic router that forces language specific system instructions, greatly improving response reliability for Tamil, Telugu, and Hindi inputs.
+* **Content aware audio chunking:** Replaced standard fixed window audio chunking with a CIF inspired RMS silence detector. This handles the highly variable speech rates of field recordings much more robustly than naive fixed length slicing.
+* **Pure Python audio processing:** Removed the external `ffmpeg` system dependency requirement for audio chunking by using the native `wave` module, keeping the setup straightforward (though PyAV internally bundles libraries for decoding).
+* **Lightweight embeddings:** Swapped PyTorch based embedding models (`sentence transformers`) for ChromaDB's default ONNX embeddings, cutting memory usage from several GB to under 200MB for the vector store layer.
+* **Zero shot query translation:** Non English queries are translated to English via Gemma 4 before retrieval, since the TNAU advisory documents are in English. This is a pragmatic tradeoff — embedding native language docs directly would be better, but requires a multilingual corpus we did not have time to build.
+
+## Known Limitations
+* The audio chunker only parses standard 16 bit PCM WAV files. Non WAV uploads (mp3, m4a) bypass chunking and are transcribed as a single file — the app does not crash, but the CIF inspired segmentation silently does not apply.
+* The subsidy calculator covers tractors and power tillers only. Other equipment types return a fallback message directing the user to scheme documents.
+* The RAG knowledge base contains two sample documents (one TNAU paddy advisory, one TN government scheme summary). It is a demo corpus, not a comprehensive agricultural knowledge base.
