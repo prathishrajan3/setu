@@ -38,6 +38,9 @@ def mock_query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, 
 @pytest.fixture(autouse=True)
 def setup_mocks(monkeypatch):
     monkeypatch.setattr(gc, "query_gemma", mock_query_gemma)
+    import app.main as main_app
+    monkeypatch.setattr(main_app, "init_db", lambda: None)
+    monkeypatch.setattr(main_app, "retrieve_context", lambda q: "MOCKED CONTEXT")
 
 def test_text_routing_english():
     response = client.post("/chat", data={"text": "What is a tractor?"})

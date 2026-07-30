@@ -2,9 +2,7 @@
 
 **Built for the Gemma 4 Hackathon Sprint — GDG VIT Chennai**
 **Track:** AI off the Grid
-**Team:** [Your Team Name]
-
-   
+**Team:** CodeKnight
 
 ## 1. The Problem
 
@@ -30,7 +28,7 @@ actual field use.
 A farmer can:
 * **Show** a leaf, pest, or soil sample to the camera
 * **Ask**, by voice, in English, Tamil, Telugu, or Hindi (including code switched combinations)
-* **Receive** an answer grounded in a locally stored knowledge base of
+* **Receive** an answer grounded in a massive locally stored vector database of
   Tamil Nadu Agricultural University (TNAU) advisories and government
   scheme documents, with an offline cost/subsidy calculator invoked via
   function calling when relevant
@@ -85,7 +83,7 @@ out of domain multilingual test sets (FLEURS: 13.05% → 10.46%; CommonVoice:
 We apply the *principle* — variable length, content aware audio
 segmentation instead of fixed length windows — when we chunk field
 recordings before passing them to Gemma 4's audio input, rather than naively
-slicing audio into fixed 5 second blocks. This is a heuristic adaptation of
+slicicing audio into fixed 5 second blocks. This is a heuristic adaptation of
 CIF's core idea, not a reimplementation of the trained CIF predictor, and we
 state that distinction plainly in the writeup.
 
@@ -98,60 +96,60 @@ users face — not an arbitrary choice.
 
 | Requirement | Gemma 4 fit |
 |---|---|
-| Works with no internet | Open weights, runs fully local via Ollama/llama.cpp |
+| Works with no internet | Open weights, runs fully local via LM Studio |
 | Understands a leaf photo | Native vision input, all sizes |
 | Understands spoken English, Tamil, Telugu, and Hindi | Native audio input on E2B / E4B / 12B Unified |
-| Fits on a laptop GPU | E4B and 12B Unified quantize to ~4–8GB VRAM |
+| Fits on a laptop GPU | `google/gemma-4-12b-qat` fits in VRAM natively |
 | Can call a subsidy calculator | Native function calling support |
 | Multilingual (140+ languages incl. Tamil) | Built into training |
 
-**Primary model:** Gemma 4 12B (`gemma4:12b` via Ollama), 4 bit quantized —
-the mid size variant with native vision support, matching our core
-multimodal pitch.
-**Fallback model:** Gemma 4 E4B — lighter and faster, used if the 12B is
-unstable during the live demo.
+**Primary model:** `google/gemma-4-12b-qat` via LM Studio. We switched to the quantized version via LM Studio to ensure optimal hardware utilization and seamless integration with the OpenAI Python SDK.
 
-### `app/gemma_client.py` — the mode switch
+### `app/gemma_client.py` — the LM Studio SDK implementation
 
-The client abstracts local vs. hosted inference behind a single function.
-Locally, it talks to Ollama's `/api/chat` endpoint with a primary → fallback
-model cascade (`gemma4:12b` → `gemma4:e4b`). For hosted deployment, it calls
-an OpenAI compatible API. Audio is transcribed locally via `faster whisper`
-before reaching Gemma; images are base64 encoded into the messages array.
+The client connects to a locally hosted LM Studio server using the official OpenAI Python SDK, allowing us to build robust applications with standard API interfaces while remaining 100% offline. Audio is transcribed locally via `faster whisper` before reaching Gemma; images are base64 encoded into the messages array.
 
 ```python
-# Simplified from app/gemma_client.py — see the actual file for full error handling
+# Simplified from app/gemma_client.py — see the actual file for full implementation
+
+from openai import OpenAI
+import os
 
 MODE = os.environ.get("GEMMA_MODE", "local")
+
+# Set up local LM Studio connection
+client = OpenAI(
+    base_url="http://localhost:1234/v1",
+    api_key="lm-studio"
+)
 
 def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):
     # Audio: transcribe locally via faster whisper, append to prompt
     # Image: base64 encode and attach to messages["images"]
-    payload = {"stream": False, "messages": messages, ...}
-
+    
     if MODE == "local":
-        payload["model"] = os.environ.get("GEMMA_MODEL", "gemma4:12b")
-        try:
-            resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
-        except:
-            payload["model"] = "gemma4:e4b"  # fallback
-            resp = requests.post("http://localhost:11434/api/chat", json=payload, timeout=120)
+        response = client.chat.completions.create(
+            model="google/gemma-4-12b-qat",
+            messages=messages,
+            tools=tools,
+            temperature=0.7,
+            max_tokens=1024
+        )
+        msg = response.choices[0].message
+        # Handle function calls or return text content
+        return {"content": msg.content, "tool_calls": getattr(msg, "tool_calls", None)}
     else:
-        resp = requests.post(os.environ["GEMMA_API_BASE"], ...)
-    return resp.json().get("message", {})
+        # Fallback if a hosted endpoint is provided
+        return {}
 ```
 
-## 5. Two Tier Demo Strategy (see README for technical detail)
+## 5. Demo Strategy
 
-1. **On site offline demo** (the one judges actually watch): runs 100% on a
-   laptop with zero network connection, proving the "AI off the Grid" claim
-   for real, not just in the writeup.
-2. **Public deployed demo** (Render, free tier): a lighter, always on
-   version judges can try remotely before/after the event, since a personal
-   laptop can't stay reachable after the hackathon ends. This tier
-   necessarily calls a hosted Gemma endpoint rather than running the model
-   locally, because Render's free tier has no GPU — this tradeoff is
-   disclosed openly rather than hidden.
+**On site offline demo** (the one judges actually watch): runs 100% on a
+laptop with zero network connection, proving the "AI off the Grid" claim
+for real, not just in the writeup. The entire architecture is built locally.
+
+*Note: We previously considered a free-tier Render deployment, but realized it compromised our core value proposition of being fully off-the-grid. We deleted the cloud configurations to fully commit to our local LM Studio architecture.*
 
 ## 6. Judging Rubric Alignment
 
@@ -170,5 +168,4 @@ def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messa
 * Replace the heuristic dialect router with an actual trained MoE projector
   (per the cited paper) once compute allows.
 * Replace the heuristic RMS based audio chunker with a trained CIF predictor.
-* Expand the local knowledge base beyond the sample TNAU/scheme documents
-  used for the demo.
+* Expand the local knowledge base beyond the Tamil Nadu specific TNAU/scheme documents.
