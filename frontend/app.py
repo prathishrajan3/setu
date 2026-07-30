@@ -1,5 +1,8 @@
 import streamlit as st
 import requests
+import os
+
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(page_title="Setu (சேது) Advisory", page_icon="🌾")
 
@@ -7,7 +10,7 @@ st.title("Setu (சேது) — Offline Farm Advisory")
 st.markdown("Point a camera at a leaf. Ask a question in Tamil. Get an answer.")
 
 # Interface
-tab1, tab2 = st.tabs(["Text Query", "Audio/Image Upload"])
+tab1, tab2 = st.tabs(["Text Query", "Multimodal Input"])
 
 with tab1:
     st.header("Ask a Question")
@@ -15,7 +18,7 @@ with tab1:
     if st.button("Ask"):
         if user_query:
             try:
-                response = requests.post("http://localhost:8000/chat", data={"text": user_query})
+                response = requests.post(f"{BACKEND_URL}/chat", data={"text": user_query})
                 if response.status_code == 200:
                     st.success("Response:")
                     st.write(response.json().get("response", "No response returned."))
@@ -27,22 +30,29 @@ with tab1:
             st.warning("Please enter a query.")
 
 with tab2:
-    st.header("Multimodal Input")
-    st.markdown("Not fully wired to model in mock, but this is where audio/vision input goes.")
+    st.header("Show & Tell")
+    st.markdown("Take a photo of a crop or pest, or upload an audio question.")
     
-    audio_file = st.file_uploader("Upload audio recording", type=["wav", "mp3", "m4a"])
-    image_file = st.file_uploader("Upload leaf/crop image", type=["jpg", "jpeg", "png"])
+    # Primary visual input
+    camera_image = st.camera_input("Take a picture")
     
-    if st.button("Process Audio/Image"):
-        if audio_file or image_file:
+    # Secondary inputs
+    with st.expander("Or upload files instead"):
+        image_file = st.file_uploader("Upload leaf/crop image", type=["jpg", "jpeg", "png"])
+        audio_file = st.file_uploader("Upload audio recording", type=["wav", "mp3", "m4a"])
+    
+    final_image = camera_image if camera_image else image_file
+    
+    if st.button("Process Input"):
+        if audio_file or final_image:
             files = {}
             if audio_file:
                 files["audio"] = (audio_file.name, audio_file.getvalue(), audio_file.type)
-            if image_file:
-                files["image"] = (image_file.name, image_file.getvalue(), image_file.type)
+            if final_image:
+                files["image"] = (final_image.name, final_image.getvalue(), final_image.type)
                 
             try:
-                response = requests.post("http://localhost:8000/chat", files=files)
+                response = requests.post(f"{BACKEND_URL}/chat", files=files)
                 if response.status_code == 200:
                     st.success("Response:")
                     st.write(response.json().get("response", "No response returned."))
@@ -51,4 +61,4 @@ with tab2:
             except Exception as e:
                 st.error(f"Failed to connect to backend API: {e}")
         else:
-            st.warning("Please upload a file.")
+            st.warning("Please provide a photo or audio file.")
