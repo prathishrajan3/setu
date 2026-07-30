@@ -14,31 +14,32 @@ def get_whisper():
         _whisper_model = WhisperModel("tiny", device="cpu", compute_type="int8")
     return _whisper_model
 
-def query_gemma(prompt, image_path=None, audio_path=None, tools=None):
-    # 1. Handle Audio via local ASR fallback
-    if audio_path:
-        try:
-            model = get_whisper()
-            segments, _ = model.transcribe(audio_path)
-            transcript = " ".join([segment.text for segment in segments])
-            prompt = f"{prompt}\n\n[Transcribed Audio]: {transcript}"
-        except Exception as e:
-            print(f"ASR Error: {e}")
-            prompt = f"{prompt}\n\n[Transcribed Audio: Error transcribing file.]"
-            
-    # 2. Handle Image encoding
-    images_list = []
-    if image_path and os.path.exists(image_path):
-        try:
-            with open(image_path, "rb") as img_file:
-                images_list.append(base64.b64encode(img_file.read()).decode("utf-8"))
-        except Exception as e:
-            print(f"Image encode error: {e}")
+def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messages=None):
+    if messages is None:
+        # 1. Handle Audio via local ASR fallback
+        if audio_path:
+            try:
+                model = get_whisper()
+                segments, _ = model.transcribe(audio_path)
+                transcript = " ".join([segment.text for segment in segments])
+                prompt = f"{prompt}\n\n[Transcribed Audio]: {transcript}"
+            except Exception as e:
+                print(f"ASR Error: {e}")
+                prompt = f"{prompt}\n\n[Transcribed Audio: Error transcribing file.]"
+                
+        # 2. Handle Image encoding
+        images_list = []
+        if image_path and os.path.exists(image_path):
+            try:
+                with open(image_path, "rb") as img_file:
+                    images_list.append(base64.b64encode(img_file.read()).decode("utf-8"))
+            except Exception as e:
+                print(f"Image encode error: {e}")
 
-    # Use the /api/chat interface which natively supports tools and multimodal messages
-    messages = [{"role": "user", "content": prompt}]
-    if images_list:
-        messages[0]["images"] = images_list
+        # Use the /api/chat interface which natively supports tools and multimodal messages
+        messages = [{"role": "user", "content": prompt}]
+        if images_list:
+            messages[0]["images"] = images_list
         
     payload = {
         "stream": False,
