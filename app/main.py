@@ -156,7 +156,7 @@ async def chat(
             
         context = retrieve_context(search_term)
         
-        augmented_prompt = f"Context:\n{context}\n\nUser Question:\n{text}\n\nAnswer the user based on the context." if context else text
+        augmented_prompt = f"Context:\n{context}\n\nUser Question:\n{text}\n\nAnswer the user based on the context. If the context does not contain the answer, use your own agricultural knowledge to help the farmer." if context else text
         routed_prompt = inject_routing_prompt(dialect, augmented_prompt)
         
         messages = [{"role": "user", "content": routed_prompt}]

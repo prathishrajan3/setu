@@ -1,0 +1,32 @@
+# General Agricultural Manual and Best Practices
+
+## Seed Selection and Preparation
+- Always purchase certified seeds from authentic sources to guarantee germination percentage and genetic purity.
+- Perform a germination test at home before bulk sowing: soak a random sample of 100 seeds and count how many sprout. If less than 80%, increase the seed rate.
+- Seed treatments using bio-fungicides (e.g., Trichoderma) are a low-cost, high-return method to prevent soil-borne diseases.
+
+## Tillage and Soil Preparation
+- Deep summer ploughing exposes resting stages of pests (like pupae) and weed seeds to intense solar heat and natural predators.
+- Minimum Tillage / Zero Tillage reduces soil erosion, conserves moisture, and improves soil structure over time.
+- Laser Land Leveling improves water use efficiency by up to 20-30%, ensuring uniform distribution of water and fertilizers.
+
+## Crop Rotation and Intercropping
+- **Crop Rotation:** Never plant crops of the same family in the same field year after year. Rotate cereals (like wheat/maize) with legumes (like chickpea/soybean) to naturally replenish soil nitrogen.
+- **Intercropping:** Planting two or more crops simultaneously in the same field (e.g., Maize + Pigeon pea). It acts as insurance against complete crop failure and suppresses weeds.
+
+## Irrigation Scheduling
+- Irrigate crops during their "Critical Growth Stages" (e.g., Crown Root Initiation in wheat, Panicle Initiation in rice, Flowering in pulses). Missing irrigation at these stages drastically reduces yield.
+- Avoid over-irrigation. Waterlogging cuts off oxygen to roots and leaches essential nutrients beyond the root zone.
+- Adopt Drip irrigation for wide-spaced crops (cotton, sugarcane, orchards) and Sprinkler irrigation for close-spaced crops (groundnut, pulses).
+
+## Safe Pesticide Application
+- Always read the label. Use the recommended dose—more pesticide does not mean faster death for pests, it just builds resistance and harms the crop (phytotoxicity).
+- Spray during the cooler parts of the day (early morning or late evening) to prevent evaporation and minimize harm to beneficial insects (like bees).
+- Always wear protective clothing (gloves, masks) and spray in the direction of the wind, never against it.
+- Observe the Pre-Harvest Interval (PHI) to ensure no toxic chemical residues remain on the harvested produce.
+
+## Harvesting and Post-Harvest Storage
+- Harvest at the correct maturity index (e.g., grain moisture should be around 18-20% for harvesting cereals).
+- Dry grains thoroughly under the sun to bring moisture down to 10-12% before storage to prevent fungal growth (e.g., Aflatoxin).
+- Store in well-ventilated, pest-proof godowns. Use hermetic storage bags (PICS bags) which naturally deplete oxygen and kill storage pests without chemicals.
+- Use botanical repellents like dried neem leaves in storage bins.

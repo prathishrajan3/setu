@@ -1,0 +1,39 @@
+# TNAU (Tamil Nadu Agricultural University) Recommendations & Package of Practices
+
+## Paddy (Rice) Cultivation Recommendations
+**Seed Rate & Treatment:**
+- Broadcast: 100 kg/ha. Transplanting: 30-40 kg/ha. SRI (System of Rice Intensification): 7-8 kg/ha.
+- Seed treatment: Treat seeds with Pseudomonas fluorescens (10 g/kg of seed) or Trichoderma viride (4 g/kg of seed) to prevent seed-borne diseases. Soak seeds in water for 12 hours and incubate in a dark place for 24 hours before sowing.
+
+**Nursery Management:**
+- Apply 1 ton of FYM (Farm Yard Manure) or compost to 20 cents (800 sq.m) of nursery.
+- Apply 40 kg DAP as a basal dose. Maintain a thin film of water in the nursery.
+
+**Main Field Preparation & Transplanting:**
+- Puddle the soil thoroughly. Apply green manure (like Daincha or Sunnhemp) at 6.25 t/ha and incorporate it during puddling.
+- Transplant 14-day old seedlings for SRI, or 21-25 day old seedlings for conventional planting.
+- Spacing: 20x10 cm or 20x15 cm depending on the variety. Plant 2-3 seedlings per hill at a shallow depth (2-3 cm).
+
+**Fertilizer Management (General Recommendation):**
+- NPK requirement varies by soil, but a general blanket recommendation is 150:50:50 kg NPK/ha for high-yielding varieties.
+- Apply 50% Nitrogen and full doses of P and K basally. Top-dress the remaining N in two equal splits at the active tillering and panicle initiation stages.
+- Apply 25 kg/ha of Zinc Sulphate as a basal application to prevent Khaira disease. Do not mix Zinc with DAP.
+
+**Water Management:**
+- Maintain 2.5 cm of water up to the panicle initiation stage.
+- Follow alternate wetting and drying (AWD) to save water and reduce methane emissions.
+- Drain the field 10 days before harvest to facilitate mechanical harvesting.
+
+## Pulses (Blackgram, Greengram, Redgram) Recommendations
+**Seed Treatment:**
+- Treat seeds with Rhizobium culture (1 packet/ha) and Phosphobacteria (1 packet/ha) mixed with cooled rice gruel. Dry in the shade before sowing.
+
+**Foliar Spray for Yield Enhancement:**
+- Spray TNAU Pulse Wonder at 5 kg/ha at the peak flowering stage to reduce flower drop and improve pod setting. Alternatively, spray 2% DAP or 1% Potassium Chloride during flowering.
+
+## Millets (Sorghum, Pearl Millet, Finger Millet) Recommendations
+- Seed hardening: Soak seeds in 1% KCl solution for 6 hours and dry in the shade to induce drought tolerance.
+- Bio-fertilizer: Use Azospirillum (3 packets/ha) as seed treatment and soil application to fix atmospheric nitrogen.
+
+## Integrated Farming Systems (IFS)
+- TNAU highly recommends integrating crop production with dairy, poultry, and aquaculture to minimize risk and maximize resource recycling. For example: crop residue feeds the cattle, cattle dung goes to the biogas plant, slurry is used as manure, and pond silt enriches the soil.

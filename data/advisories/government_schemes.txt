@@ -1,0 +1,43 @@
+# Comprehensive Government Schemes for Farmers (Central and State Level)
+
+## Pradhan Mantri Kisan Samman Nidhi (PM-KISAN)
+- **Objective:** To provide income support to all landholding farmer families in the country to supplement their financial needs for procuring various inputs related to agriculture.
+- **Benefits:** Financial benefit of Rs. 6,000 per year is provided in three equal installments of Rs. 2,000 every four months, directly transferred to the bank accounts of the beneficiaries (DBT).
+- **Eligibility:** All landholding farmer families.
+
+## Pradhan Mantri Fasal Bima Yojana (PMFBY)
+- **Objective:** To provide insurance coverage and financial support to farmers in the event of failure of any of the notified crops as a result of natural calamities, pests, and diseases.
+- **Benefits:** Premium rates paid by farmers are highly subsidized (maximum 2% for Kharif crops, 1.5% for Rabi crops, and 5% for commercial/horticultural crops). The balance premium is paid by the Government.
+- **Key Feature:** Covers localized risks, post-harvest losses, and yield losses.
+
+## Pradhan Mantri Krishi Sinchayee Yojana (PMKSY) - "Per Drop More Crop"
+- **Objective:** To enhance water use efficiency at the farm level through Micro Irrigation technologies (Drip and Sprinkler Irrigation).
+- **Benefits / Subsidy:** 
+  - In Tamil Nadu, 100% subsidy is provided to Small and Marginal Farmers (SMF).
+  - 75% subsidy is provided to "Other Farmers" for installing drip/sprinkler systems.
+- **Eligibility:** Farmers must own land and have an assured water source. The scheme is integrated through the state horticulture or agriculture departments.
+
+## Soil Health Card Scheme (SHC)
+- **Objective:** To issue soil health cards to all farmers every two years, providing information on the nutrient status of their soil along with recommendations on appropriate dosage of nutrients.
+- **Benefits:** Helps farmers improve productivity through judicious application of fertilizers, reducing costs and preventing soil degradation.
+
+## e-NAM (National Agriculture Market)
+- **Objective:** A pan-India electronic trading portal that networks the existing APMC mandis to create a unified national market for agricultural commodities.
+- **Benefits:** Better price discovery through transparent auction processes, access to a wider market, and online payment directly to the farmer's bank account.
+
+## Kisan Credit Card (KCC)
+- **Objective:** To provide adequate and timely credit support from the banking system under a single window with flexible and simplified procedures for farmers.
+- **Benefits:** Meets short-term credit requirements for crop cultivation, post-harvest expenses, and maintenance of farm assets. Offers subsidized interest rates (often 4% per annum if repaid promptly).
+
+## Tamil Nadu State Specific Schemes
+
+**Uzhavar Sandhai (Farmer's Market):**
+- Direct marketing centers where farmers can sell their produce (vegetables and fruits) directly to consumers without middlemen, ensuring higher profit margins for farmers and fresh produce for consumers.
+
+**Agricultural Mechanization Subsidy:**
+- **SMAM (Sub Mission on Agricultural Mechanization):** Provides subsidies for purchasing agricultural machinery like tractors, power tillers, rotavators, and paddy transplanters.
+- Subsidy rates are generally 50% for SC/ST, Women, and Small/Marginal farmers, and 40% for other farmers, subject to a maximum ceiling limit per machine.
+- Custom Hiring Centers (CHCs) are also established with heavy subsidies to rent out machinery to small farmers who cannot afford to buy them.
+
+**Kalaignarin All Village Integrated Agricultural Development Programme (KAVIADP):**
+- A holistic state scheme focusing on bringing fallow lands under cultivation, augmenting water resources, solar pumps, and overall village-level agricultural infrastructure development in Tamil Nadu.

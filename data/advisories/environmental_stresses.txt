@@ -1,0 +1,61 @@
+# Comprehensive Environmental Stress and Weed Management Guide
+
+## Drought Stress Management
+Drought stress severely limits crop yields due to insufficient soil moisture.
+**Symptoms:**
+- Wilting of leaves, starting during the hottest part of the day and progressing to permanent wilting.
+- Stunted growth, delayed flowering, and reduced grain filling.
+- Leaf curling or rolling (common in maize and rice).
+**Management:**
+- Select short-duration and drought-tolerant crop varieties.
+- Practice conservation agriculture: zero tillage and crop residue retention (mulching) to conserve soil moisture.
+- Implement Micro-Irrigation Schemes (PMKSY) such as drip or sprinkler irrigation to maximize water use efficiency.
+- Apply Potassium fertilizers, which improve stomatal regulation and water retention in plants.
+- Spray 1-2% Potassium Nitrate (KNO3) during dry spells.
+- Use anti-transpirants (e.g., Kaolin spray) to reduce water loss from leaves.
+
+## Waterlogging and Flood Stress
+Excess water restricts oxygen flow to the roots (hypoxia/anoxia).
+**Symptoms:**
+- Yellowing (chlorosis) of lower leaves due to nitrogen deficiency (denitrification occurs rapidly in waterlogged soils).
+- Stunted growth and wilting (despite abundant water, roots cannot function).
+- Root rot and foul-smelling soil.
+**Management:**
+- Construct proper surface drainage channels (e.g., ridge and furrow system, raised beds).
+- Grow flood-tolerant varieties (e.g., Swarna-Sub1 for rice, which can survive submergence for up to 14 days).
+- Delay top-dressing of fertilizers until water drains.
+- Apply a foliar spray of 1-2% Urea or Potassium Nitrate after the water recedes to help the crop recover quickly.
+
+## Frost and Cold Stress
+Occurs when temperatures drop near or below freezing.
+**Symptoms:**
+- Water-soaked, dark green, or blackened leaves (tissue death due to ice crystals rupturing cells).
+- Shriveling of grains if frost hits during the dough stage (e.g., in wheat).
+- Flower drop and fruit damage in horticultural crops.
+**Management:**
+- Apply light irrigation before a predicted frost night (wet soil retains and releases more heat than dry soil).
+- Create smoke screens around the field borders during the early morning hours to trap outgoing long-wave radiation.
+- Avoid late planting of winter crops.
+- Spray 0.1% Thiourea to provide some frost tolerance.
+
+## Heat Stress
+Occurs during terminal growth stages, particularly threatening wheat yields in South Asia ("terminal heat").
+**Symptoms:**
+- Leaf scorching and sunburn on fruits.
+- Forced maturity: grains dry out prematurely, resulting in shriveled, lightweight grains.
+- Poor pollination and flower drop.
+**Management:**
+- Adjust planting dates (e.g., early sowing of wheat) to ensure the grain-filling stage occurs before peak temperatures.
+- Maintain adequate soil moisture through frequent, light irrigations.
+- Apply foliar sprays of Potassium or Salicylic acid to mitigate heat shock.
+
+## Integrated Weed Management
+Weeds compete with crops for water, nutrients, sunlight, and space.
+**Critical Period:** The first 30-45 days after sowing are usually the critical period for weed competition.
+**Management Strategies:**
+- **Cultural:** Crop rotation, intercropping, appropriate plant spacing, and use of cover crops.
+- **Mechanical/Physical:** Hand weeding, hoeing, and using tractor-drawn cultivators or weeders. Stale seedbed technique (irrigate to flush out weeds, kill them, then plant).
+- **Chemical (Herbicides):** 
+  - *Pre-emergence:* Applied before crops and weeds emerge (e.g., Pendimethalin).
+  - *Post-emergence:* Applied after weeds emerge (e.g., Bispyribac-sodium for rice, 2,4-D for broadleaf weeds in wheat).
+  - Always follow recommended doses and safety guidelines to avoid phytotoxicity and herbicide resistance.
