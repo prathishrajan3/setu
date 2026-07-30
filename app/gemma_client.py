@@ -45,7 +45,7 @@ def query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, messa
         messages = [{"role": "user", "content": content}]
 
     client = OpenAI(
-        base_url="http://10.129.53.171:1234/v1",
+        base_url="http://localhost:1234/v1",
         api_key="lm-studio"
     )
 

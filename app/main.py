@@ -163,7 +163,11 @@ async def chat(
         if temp_image_path and os.path.exists(temp_image_path):
             try:
                 with open(temp_image_path, "rb") as img_file:
-                    messages[0]["images"] = [base64.b64encode(img_file.read()).decode("utf-8")]
+                    b64_img = base64.b64encode(img_file.read()).decode("utf-8")
+                    messages = [{"role": "user", "content": [
+                        {"type": "text", "text": routed_prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{b64_img}"}}
+                    ]}]
             except Exception as e:
                 print(f"Image encode error: {e}")
         

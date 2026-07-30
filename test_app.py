@@ -37,8 +37,8 @@ def mock_query_gemma(prompt=None, image_path=None, audio_path=None, tools=None, 
 
 @pytest.fixture(autouse=True)
 def setup_mocks(monkeypatch):
-    monkeypatch.setattr(gc, "query_gemma", mock_query_gemma)
     import app.main as main_app
+    monkeypatch.setattr(main_app, "query_gemma", mock_query_gemma)
     monkeypatch.setattr(main_app, "init_db", lambda: None)
     monkeypatch.setattr(main_app, "retrieve_context", lambda q: "MOCKED CONTEXT")
 
@@ -58,7 +58,8 @@ def test_text_routing_code_switched():
     assert "System: The following user input is code-switched Tamil-English." in response.json()["response"]
 
 def test_audio_routing(monkeypatch):
-    monkeypatch.setattr(gc, "get_whisper", lambda: MockWhisper("What is a tractor?", "en", 0.99))
+    import app.main as main_app
+    monkeypatch.setattr(main_app, "get_whisper", lambda: MockWhisper("What is a tractor?", "en", 0.99))
     
     fd, path = tempfile.mkstemp(suffix=".wav")
     with os.fdopen(fd, 'wb') as f:
