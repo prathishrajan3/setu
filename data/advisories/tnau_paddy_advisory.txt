@@ -1,0 +1,18 @@
+Tamil Nadu Agricultural University (TNAU)
+Agri-Tech Portal
+
+Crop: Paddy (Rice)
+Pest: Brown Plant Hopper (BPH)
+Symptoms: Yellowing of leaves, hopper burn (drying of plants in circular patches).
+Management: 
+- Avoid excessive nitrogen application.
+- Drain water from the field for 3-4 days during initial infestation.
+- Apply Neem Seed Kernel Extract (NSKE) 5%.
+- In severe cases, use Pymetrozine 50% WG at 120 g/acre or Dinotefuran 20% SG at 80 g/acre.
+
+Disease: Rice Blast
+Symptoms: Spindle-shaped lesions on leaves with grey centers and brown margins.
+Management:
+- Use resistant varieties like CO 51, ADT 53.
+- Avoid late planting.
+- Spray Tricyclazole 75% WP at 200 g/acre or Azoxystrobin 25% SC at 200 ml/acre.
