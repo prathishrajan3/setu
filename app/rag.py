@@ -10,9 +10,9 @@ def get_chroma_client():
 
 def init_db():
     client = get_chroma_client()
-    # Using a lightweight sentence-transformer model
-    sentence_transformer_ef = embedding_functions.SentenceTransformerEmbeddingFunction(model_name="all-MiniLM-L6-v2")
-    collection = client.get_or_create_collection(name="advisories", embedding_function=sentence_transformer_ef)
+    # Using ChromaDB's default embedding function (ONNX based) to fit within 512MB RAM
+    default_ef = embedding_functions.DefaultEmbeddingFunction()
+    collection = client.get_or_create_collection(name="advisories", embedding_function=default_ef)
     
     if collection.count() == 0:
         # Load data
